@@ -9,9 +9,9 @@ use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 
 /**
- * This file is part of the stormcode\monolog-http-handler package.
+ * This file is part of the stormcode/seq-laravel-log package.
  *
- * Copyright (c) 2018 Markus Schlotbohm
+ * Copyright (c) 2018 Markus Schlotbohm & 2024 Mikołaj Salamak
  *
  * For the full copyright and license information, please view the LICENSE.md
  * file that was distributed with this source code.
