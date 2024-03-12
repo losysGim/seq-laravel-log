@@ -1,6 +1,6 @@
 {
-    "name": "stormcode/monolog-seq-handler",
-    "description": "stormcode/monolog-seq-handler sends log records to a Seq-Server.",
+    "name": "stormcode/seq-laravel-log",
+    "description": "stormcode/seq-laravel-log sends log records to a Seq-Server.",
     "keywords": [
         "monolog",
         "handler",
