@@ -239,7 +239,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
                 }
                 $x['previous'] = $previousEnd;
             }
-            if(is_array($x['trace'])) {
+            if(isset($x['trace']) && is_array($x['trace'])) {
                 $x['trace'] = implode(PHP_EOL, $x['trace']);
             }
             $xEnd = '';
