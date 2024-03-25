@@ -296,7 +296,7 @@ class HttpHandler extends AbstractProcessingHandler
      * @param  array $record
      * @return void
      */
-    protected function write(array $record): void
+    protected function write(\Monolog\LogRecord $record): void
     {
     	$uri = $this->getUri();
 
