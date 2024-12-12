@@ -235,6 +235,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
                 }
                 $previousEnd = '';
                 foreach ($x['previous'] as $key => $val) {
+		    if (is_array($val)) $val = json_encode($val);
                     $previousEnd .= "\t".$key . ': ' . $val . PHP_EOL;
                 }
                 $x['previous'] = $previousEnd;
