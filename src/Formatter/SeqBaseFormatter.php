@@ -2,8 +2,6 @@
 
 namespace StormCode\SeqMonolog\Formatter;
 
-use DateTime;
-use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Utils;
 use \Throwable;
@@ -37,17 +35,6 @@ abstract class SeqBaseFormatter extends JsonFormatter
     ];
 
     /**
-     * Initializes a new instance of the {@see SeqBaseFormatter} class.
-     *
-     * @param  int $batchMode The json batch mode.
-     */
-    function __construct($batchMode)
-    {
-        $this->appendNewline = false;
-        $this->batchMode = $batchMode;
-    }
-
-    /**
      * Returns a string with the content type for the seq-formatter.
      *
      * @return string
@@ -57,8 +44,9 @@ abstract class SeqBaseFormatter extends JsonFormatter
     /**
      * Normalizes the log record array.
      *
-     * @param array $recod The log record to normalize.
-     * @return array
+     * @param mixed $record The log record to normalize.
+     * @param int   $depth  unused
+     * @return mixed
      */
     protected function normalize(mixed $record, int $depth = 0): mixed
     {
@@ -91,7 +79,7 @@ abstract class SeqBaseFormatter extends JsonFormatter
      * Processes the context array.
      *
      * @param  array &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  array $message     The context array.
+     * @param  array $context     The context array.
      * @return void
      */
     protected abstract function processContext(array &$normalized, array $context);
@@ -100,7 +88,7 @@ abstract class SeqBaseFormatter extends JsonFormatter
      * Processes the log level.
      *
      * @param  array &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  int   $message     The log level.
+     * @param  int   $level       The log level.
      * @return void
      */
     protected abstract function processLevel(array &$normalized, int $level);
@@ -118,7 +106,7 @@ abstract class SeqBaseFormatter extends JsonFormatter
      * Processes the channel name.
      *
      * @param  array  &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  string $message     The log channel name.
+     * @param  string $name        The log channel name.
      * @return void
      */
     protected abstract function processChannel(array &$normalized, string $name);
@@ -126,17 +114,17 @@ abstract class SeqBaseFormatter extends JsonFormatter
     /**
      * Processes the log timestamp.
      *
-     * @param  array    &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  DateTime $message     The log timestamp.
+     * @param  array              &$normalized Reference to the normalized array, where all normalized data get stored.
+     * @param  \DateTimeInterface $datetime     The log timestamp.
      * @return void
      */
-    protected abstract function processDatetime(array &$normalized, \Monolog\DateTimeImmutable $datetime);
+    protected abstract function processDatetime(array &$normalized, \DateTimeInterface $datetime);
 
     /**
      * Processes the extras array.
      *
      * @param  array &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  array $message     The extras array.
+     * @param  array $extras      The extras array.
      * @return void
      */
     protected abstract function processExtra(array &$normalized, array $extras);

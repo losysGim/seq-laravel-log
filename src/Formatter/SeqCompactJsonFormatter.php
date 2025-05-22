@@ -3,9 +3,8 @@
 namespace StormCode\SeqMonolog\Formatter;
 
 use DateTime;
-use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\JsonFormatter;
-use StormCode\SeqMonolog\Exception\InvalidCodePathException;
+use StormCode\SeqMonolog\Exception\WrongCodePathException;
 
 /**
  * This file is part of the stormcode/seq-laravel-log package.
@@ -108,12 +107,12 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
     /**
      * This function should never be called!!!
      *
-     * @throws \Msschl\Monolog\Exception\InvalidCodePathException
+     * @throws WrongCodePathException
      */
     protected function formatBatchJson(array $records): string
     {
         /* istanbul ignore next */
-        throw new InvalidCodePathException();
+        throw new WrongCodePathException();
     }
 
     /**
@@ -135,7 +134,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
      * Processes the context array.
      *
      * @param  array &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  array $message     The context array.
+     * @param  array $context     The context array.
      * @return void
      */
     protected function processContext(array &$normalized, array $context)
@@ -154,7 +153,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
      * Processes the log level.
      *
      * @param  array &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  int   $message     The log level.
+     * @param  int   $level       The log level.
      * @return void
      */
     protected function processLevel(array &$normalized, int $level)
@@ -167,7 +166,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
      * Processes the log level name.
      *
      * @param  array  &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  string $message     The log level name.
+     * @param  string $levelName   The log level name.
      * @return void
      */
     protected function processLevelName(array &$normalized, string $levelName)
@@ -179,7 +178,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
      * Processes the channel name.
      *
      * @param  array  &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  string $message     The log channel name.
+     * @param  string $name        The log channel name.
      * @return void
      */
     protected function processChannel(array &$normalized, string $name)
@@ -190,11 +189,11 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
     /**
      * Processes the log timestamp.
      *
-     * @param  array    &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  DateTime $message     The log timestamp.
+     * @param  array             &$normalized Reference to the normalized array, where all normalized data get stored.
+     * @param  \DateTimeInterface $datetime   The log timestamp.
      * @return void
      */
-    protected function processDatetime(array &$normalized, \Monolog\DateTimeImmutable $datetime)
+    protected function processDatetime(array &$normalized, \DateTimeInterface $datetime)
     {
         $normalized['@t'] = $datetime->format(DateTime::ISO8601);
     }
@@ -203,7 +202,7 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
      * Processes the extras array.
      *
      * @param  array &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  array $message     The extras array.
+     * @param  array $extras      The extras array.
      * @return void
      */
     protected function processExtra(array &$normalized, array $extras)
