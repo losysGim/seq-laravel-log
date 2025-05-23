@@ -1,5 +1,5 @@
 {
-    "name": "stormcode/seq-laravel-log",
+    "name": "losysgim/seq-laravel-log",
     "description": "stormcode/seq-laravel-log sends log records to a Seq-Server.",
     "keywords": [
         "monolog",
