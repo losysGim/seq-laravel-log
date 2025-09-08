@@ -8,7 +8,6 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 use StormCode\SeqMonolog\Formatter\SeqBaseFormatter;
 use StormCode\SeqMonolog\Formatter\SeqCompactJsonFormatter;
-use StormCode\SeqMonolog\Handler\HttpHandler;
 
 /**
  * This file is part of the stormcode/seq-laravel-log package.
@@ -61,7 +60,7 @@ class SeqHandler extends HttpHandler
 	 */
 	public function __construct(
 		string $serverUri,
-		string $apiKey = null,
+		?string $apiKey = null,
 		$level = Logger::DEBUG,
 		$bubble = true
 	) {
@@ -98,7 +97,7 @@ class SeqHandler extends HttpHandler
 	 *                          {@see SeqHandler}.
 	 * @return self
 	 */
-	public function setServerUri(string $uri = null)
+	public function setServerUri(?string $uri = null)
 	{
 		if (!empty($uri)) {
 			if (!SeqHandler::endsWith($uri, '/')) {
@@ -129,7 +128,7 @@ class SeqHandler extends HttpHandler
 	 * @param  string|null $apiKey The Seq API key or null.
 	 * @return self
 	 */
-	public function setApiKey(string $apiKey = null)
+	public function setApiKey(?string $apiKey = null)
 	{
 		$this->popHeader($apiKey);
 
@@ -162,7 +161,7 @@ class SeqHandler extends HttpHandler
 	/**
      * Gets the default formatter.
      *
-     * @return \Msschl\Monolog\Formatter\SeqCompactJsonFormatter
+     * @return FormatterInterface
      */
     protected function getDefaultFormatter() : FormatterInterface
     {
@@ -180,7 +179,7 @@ class SeqHandler extends HttpHandler
      * @param  string|null $needle   The searched value.
      * @return bool
      */
-    private static function endsWith(string $haystack, string $needle = null)
+    private static function endsWith(string $haystack, ?string $needle = null)
 	{
     	$length = strlen($needle);
 

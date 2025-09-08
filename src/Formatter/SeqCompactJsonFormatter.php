@@ -2,7 +2,7 @@
 
 namespace StormCode\SeqMonolog\Formatter;
 
-use DateTime;
+use DateTimeInterface;
 use Monolog\Formatter\JsonFormatter;
 use StormCode\SeqMonolog\Exception\WrongCodePathException;
 
@@ -190,12 +190,12 @@ class SeqCompactJsonFormatter extends SeqBaseFormatter
      * Processes the log timestamp.
      *
      * @param  array             &$normalized Reference to the normalized array, where all normalized data get stored.
-     * @param  \DateTimeInterface $datetime   The log timestamp.
+     * @param  DateTimeInterface $datetime   The log timestamp.
      * @return void
      */
-    protected function processDatetime(array &$normalized, \DateTimeInterface $datetime)
+    protected function processDatetime(array &$normalized, DateTimeInterface $datetime)
     {
-        $normalized['@t'] = $datetime->format(DateTime::ISO8601);
+        $normalized['@t'] = $datetime->format(DateTimeInterface::ATOM);
     }
 
     /**

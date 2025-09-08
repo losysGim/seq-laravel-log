@@ -2,9 +2,11 @@
 
 namespace StormCode\SeqMonolog\Formatter;
 
+use InvalidArgumentException;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Utils;
 use \Throwable;
+use Traversable;
 
 /**
  * This file is part of the stormcode/seq-laravel-log package.
@@ -44,20 +46,20 @@ abstract class SeqBaseFormatter extends JsonFormatter
     /**
      * Normalizes the log record array.
      *
-     * @param mixed $record The log record to normalize.
+     * @param mixed $data The log record to normalize.
      * @param int   $depth  unused
      * @return mixed
      */
-    protected function normalize(mixed $record, int $depth = 0): mixed
+    protected function normalize(mixed $data, int $depth = 0): mixed
     {
-        if (!is_array($record) && !$record instanceof \Traversable) {
+        if (!is_array($data) && !$data instanceof Traversable) {
             /* istanbul ignore next */
-            throw new \InvalidArgumentException('Array/Traversable expected, got ' . gettype($record) . ' / ' . get_class($record));
+            throw new InvalidArgumentException('Array/Traversable expected, got ' . gettype($data) . ' / ' . get_class($data));
         }
 
         $normalized = [];
 
-        foreach ($record as $key => $value) {
+        foreach ($data as $key => $value) {
             $key = SeqBaseFormatter::ConvertSnakeCaseToPascalCase($key);
 
             $this->{'process' . $key}($normalized, $value);
@@ -209,10 +211,10 @@ abstract class SeqBaseFormatter extends JsonFormatter
     /**
      * Converts a snake case string to a pascal case string.
      *
-     * @param  string $value The string to convert.
+     * @param  string|null $value The string to convert.
      * @return string
      */
-    protected static function ConvertSnakeCaseToPascalCase(string $value = null) : string {
+    protected static function ConvertSnakeCaseToPascalCase(?string $value = null) : string {
         return str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $value)));
     }
 }

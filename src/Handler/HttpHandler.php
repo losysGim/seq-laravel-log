@@ -2,11 +2,20 @@
 
 namespace StormCode\SeqMonolog\Handler;
 
+use ArrayAccess;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\AbstractProcessingHandler;
-use Monolog\Logger;
+use Monolog\Level;
+use Monolog\LogRecord;
+use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 /**
  * This file is part of the stormcode/seq-laravel-log package.
@@ -26,12 +35,6 @@ class HttpHandler extends AbstractProcessingHandler
      */
     protected $client;
 
-    /**
-     * The message factory instance.
-     *
-     * @var GuzzleMessageFactory
-     */
-    protected $messageFactory;
 
     /**
      * The options array.
@@ -57,11 +60,10 @@ class HttpHandler extends AbstractProcessingHandler
      */
 	public function __construct(
 		array $options = [],
-		$level = Logger::DEBUG,
+		$level = Level::Debug,
 		$bubble = true
 	) {
 		$this->client = new Client();
-		$this->messageFactory = new \Http\Message\MessageFactory\GuzzleMessageFactory();
 
 		$this->setOptions($options);
 
@@ -97,7 +99,7 @@ class HttpHandler extends AbstractProcessingHandler
 	 * @param  string|null $uri Sets the http server uri or null to disable the {@see HttpHandler}.
 	 * @return self
 	 */
-	public function setUri(string $uri = null)
+	public function setUri(?string $uri = null)
 	{
 		$this->options['uri'] = $uri;
 
@@ -157,7 +159,7 @@ class HttpHandler extends AbstractProcessingHandler
 	 * @param  string|null $default A default value or null
 	 * @return string|$default
 	 */
-	public function getHeader(string $key = null, string $default = null)
+	public function getHeader(?string $key = null, ?string $default = null)
 	{
 		return $this->getHeaders()[$key] ?? $default;
 	}
@@ -168,7 +170,7 @@ class HttpHandler extends AbstractProcessingHandler
 	 * @param  string|null $key The header key.
 	 * @return bool
 	 */
-	public function hasHeader(string $key = null) : bool
+	public function hasHeader(?string $key = null) : bool
 	{
 		if ($key === null) {
 			return false;
@@ -185,7 +187,7 @@ class HttpHandler extends AbstractProcessingHandler
 	 * @param  string|null $value The header value.
 	 * @return self
 	 */
-	public function pushHeader(string $key, string $value = null)
+	public function pushHeader(string $key, ?string $value = null)
 	{
 		$headers = $this->getHeaders();
 
@@ -202,7 +204,7 @@ class HttpHandler extends AbstractProcessingHandler
 	 * @param  string|null $key The header key.
 	 * @return string|null
 	 */
-	public function popHeader(string $key = null)
+	public function popHeader(?string $key = null)
 	{
 		$value = $this->getHeader($key);
 
@@ -263,7 +265,7 @@ class HttpHandler extends AbstractProcessingHandler
 	/**
      * Gets the default formatter.
      *
-     * @return \Monolog\Formatter\JsonFormatter
+     * @return FormatterInterface
      */
     protected function getDefaultFormatter() : FormatterInterface
     {
@@ -281,43 +283,41 @@ class HttpHandler extends AbstractProcessingHandler
     }
 
     /**
-     * Returns the message factory.
-     *
-     * @return \Http\Message\MessageFactory\GuzzleMessageFactory
-     */
-    protected function getMessageFactory(): \Http\Message\MessageFactory\GuzzleMessageFactory
-    {
-        return $this->messageFactory;
-    }
-
-    /**
      * Writes the record.
      *
-     * @param  array $record
+     * @param  LogRecord|ArrayAccess|array $record
      * @return void
      */
-    protected function write(\Monolog\LogRecord $record): void
+    protected function write(LogRecord|ArrayAccess|array $record): void
     {
     	$uri = $this->getUri();
 
     	if (empty($uri)) {
     		return;
     	}
-    	$request = $this->getMessageFactory()->createRequest(
-    		$this->getMethod(),
-    		$this->getUri(),
-    		$this->getHeaders(),
-    		$record['formatted'],
-    		$this->getProtocolVersion()
-    	);
+
+        $request = new Request(
+            $this->getMethod(),
+            $this->getUri(),
+            $this->getHeaders(),
+            $record['formatted'],
+            $this->getProtocolVersion()
+        );
 
     	try {
-    		$response = $this->getHttpClient()->sendRequest($request);
-            if ($response->getStatusCode() !== 201) {
-                \Log::driver('single')->error('[SEQ LOGGING ERROR] ' . $response->getBody());
-            }
-    	} catch (\Exception $e) {
-            \Log::driver('single')->error('[SEQ LOGGING ERROR] ' . $e->getMessage());
+            $options[RequestOptions::SYNCHRONOUS] = true;
+            $options[RequestOptions::ALLOW_REDIRECTS] = true;
+            $options[RequestOptions::HTTP_ERRORS] = true;
+
+            $response = $this->getHttpClient()->sendAsync($request, $options)->wait();
+            /** @var ResponseInterface $response */
+
+            if ($response->getStatusCode() < 200
+                || $response->getStatusCode() > 299)
+                throw new InvalidArgumentException(
+                    "request failed with http {$response->getStatusCode()}: " . Str::limit($response->getBody()->getContents(), 512));
+    	} catch (Throwable $e) {
+            Log::driver('single')->error('[SEQ LOGGING ERROR] ' . $e->getMessage());
     		return;
     	}
     }
