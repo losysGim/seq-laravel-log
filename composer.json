@@ -29,7 +29,6 @@
         "php-http/guzzle7-adapter": "^1",
         "php-http/httplug": "^2",
         "php-http/message": "^1",
-        "php-http/message-factory": "^1",
         "guzzlehttp/guzzle": "^7"
     },
     "require-dev": {
